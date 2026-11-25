@@ -67,7 +67,7 @@ types outrank text markers when both are present.
 ## Install
 
 ```
-pip install git+https://github.com/StartupBros/failure-class
+pip install git+https://github.com/StartupBros-com/failure-class
 ```
 
 ## Origin
