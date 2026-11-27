@@ -98,8 +98,6 @@ def classify_failure(
         return FailureClass.CONNECTION
     if malformed_response or any(marker in text for marker in _PROTOCOL_MARKERS):
         return FailureClass.ENDPOINT_PROTOCOL
-    if status in (400, 413, 422) and any(marker in text for marker in _CONTEXT_MARKERS):
-        return FailureClass.CONTEXT_OR_MODEL_FIT
     if any(marker in text for marker in _CONTEXT_MARKERS):
         return FailureClass.CONTEXT_OR_MODEL_FIT
     if any(marker in text for marker in _WEDGED_MARKERS):

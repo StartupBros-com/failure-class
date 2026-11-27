@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from urllib.error import URLError
 
+import pytest
+
 from failure_class import FailureClass, classify_failure
 
 
@@ -19,3 +21,24 @@ def test_context_and_mlx_lazy_load_failures_are_provider_classes():
 
 def test_scorer_failure_after_success_is_model_quality():
     assert classify_failure(successful_model_response=True, scorer_failed=True) == FailureClass.MODEL_QUALITY
+
+
+@pytest.mark.parametrize("status", [None, 400, 413, 422, 503])
+def test_context_markers_classify_independently_of_status(status):
+    assert (
+        classify_failure(status_code=status, message="prompt too long")
+        == FailureClass.CONTEXT_OR_MODEL_FIT
+    )
+
+
+@pytest.mark.parametrize(
+    ("status", "message", "expected"),
+    [
+        (413, "request rejected", FailureClass.NONE),
+        (401, "prompt too long", FailureClass.AUTH),
+        (429, "prompt too long", FailureClass.TIMEOUT_SLA),
+        (422, "invalid json: prompt too long", FailureClass.ENDPOINT_PROTOCOL),
+    ],
+)
+def test_context_check_keeps_status_and_protocol_precedence(status, message, expected):
+    assert classify_failure(status_code=status, message=message) == expected
